@@ -75,17 +75,22 @@ function coups_possibles() {
 
 }
 
+function coupAleatoire() {
+    var coups = coups_possibles();
+    var coupChoisi = coups[Math.floor(Math.random() * coups.length)];
+    swap(coupChoisi[0], coupChoisi[1]);
+    render(tableau);
+}
+
+
+var mixInterval;
 function mix() {
-    document.getElementById("mix");
-    for (k = 0; k < 10; k++) {
-
-        var coups = coups_possibles();
-        var coupChoisi = coups[Math.floor(Math.random() * coups.length)];
-
-        swap(coupChoisi[0], coupChoisi[1]);
-        render(tableau);
+    if(mixInterval) {
+        clearInterval((mixInterval));
+        mixInterval = null;
+    } else {
+        mixInterval = setInterval(coupAleatoire, 100);
     }
-
 }
 
 init();

@@ -10,17 +10,16 @@
 td {
     margin: 5px 25px 5px 25px;
     padding: 50px;
-    background-color: powderblue;
+    background-color: deepskyblue;
 }
 h1 {
     margin: 10px 25px 10px 25px;
 
     padding: 20px;
-    background-color: lavenderblush;
     text-align: center;
-    color: darkblue;
+    color: white;
 }
 
 body{
-   background: pink;
+   background: black;
 }
