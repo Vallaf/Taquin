@@ -1,26 +1,43 @@
+$( document ).ready(function() {
+
 //========================== init jeu ==================================//
 
 var n = 3;
 var tableau = [];
-var tableauInitial = [[0,1,2],[3,4,5],[6,7,8]];
+var tableauInitial = [];
 
-var livide = 2;
-var covide = 2;
+var livide = 0;
+var covide = 0;
 
-
+var longueurPlateau = 0;
 //==================== ajout cases chiffrées ============================//
 
+function myTable() {
+    for (let i = 0; i < n; i++) {
+        let myLine = [];
+        for (let j = 0; j < n; j++) {
+            myLine.push(i * n + j);
+        }
+        tableauInitial.push(myLine);
+
+    }
+}
 function init() {
 
 
-    for (var i = 0; i < n; i++) {
-        var line = [];
-        for (var j = 0; j < n; j++) {
+    for (let i = 0; i < n; i++) {
+        let line = [];
+        for (let j = 0; j < n; j++) {
+            longueurPlateau++;
             line.push(i * n + j);
         }
-        tableau.push(line);
+ tableau.push(line);
 
     }
+    let blankCase = caseVide(tableau);
+    livide = blankCase[0];
+    covide = blankCase[1];
+    console.log(longueurPlateau);
 }
 
 function render() {
@@ -31,7 +48,7 @@ function render() {
         tbody.append(tr)
 
         for (var j = 0; j < n; j++) {
-            if (tableau[i][j] === 8) {
+            if (tableau[i][j] === longueurPlateau-1) {
                 var td = $('<td>').text('')
             } else
                 var td = $('<td>').text(tableau[i][j])
@@ -46,7 +63,7 @@ function render() {
 //==================== ajout cases chiffrées ============================//
 
 function swap(li, co, index1, index2) {
-    var temp = tableau[li][co];
+    let temp = tableau[li][co];
     tableau[li][co] = tableau[index1][index2];
     tableau[index1][index2] = temp;
 
@@ -54,39 +71,39 @@ function swap(li, co, index1, index2) {
     covide = co;
 }
 
-function coups_possibles() {
+function coups_possibles(liv,cov) {
 
-    var coups = [];
+    let coups = [];
 
-    if (livide != 0) {
-        coups.push([livide - 1, covide])
+    if (liv !== 0) {
+        coups.push([liv - 1, cov])
     }
 
-    if (livide != 2) {
-        coups.push([livide + 1, covide])
+    if (liv !== 2) {
+        coups.push([liv + 1, cov])
     }
 
 
-    if (covide != 0) {
-        coups.push([livide, covide - 1])
+    if (cov !== 0) {
+        coups.push([liv, cov - 1])
     }
 
-    if (covide != 2) {
-        coups.push([livide, covide + 1])
+    if (cov !== 2) {
+        coups.push([liv, cov + 1])
     }
     return coups;
 
 }
 
 function coupAleatoire() {
-    var coups = coups_possibles();
-    var coupChoisi = coups[Math.floor(Math.random() * coups.length)];
+    let coups = coups_possibles(livide,covide);
+    let coupChoisi = coups[Math.floor(Math.random() * coups.length)];
     swap(coupChoisi[0], coupChoisi[1], livide, covide);
     render(tableau);
 }
 
 
-var mixInterval;
+let mixInterval;
 
 function mix() {
     if (mixInterval) {
@@ -109,33 +126,48 @@ let test = 0;
             }
 
         }
-    if(test === 9){
-        console.log("cest gagner");
+    console.log(tableauInitial);
+console.log(tableau);
+console.log(test);
+    if(test === longueurPlateau){
+        console.log("cest gagné");
         return true;
     }
     else
         return false;
 
 }
-
-function depthSolution(maxdepth, tableau, depth) {
-    let postitionCaseVide = caseVide(tableau);
-    if (depth > maxdepth) {
-        return false;
-    }
+var mytest = 0;
+function depthSolution(maxdepth, tableau, depth, index1 = null, index2 = null) {
+    let positionCaseVide = caseVide(tableau);
     if (checkWin(tableau, tableauInitial)){
         return true;
     }
-    let coupPossible = coups_possibles();
+    if (depth > maxdepth) {
+        let temp = tableau[positionCaseVide[0]][positionCaseVide[1]];
+        tableau[positionCaseVide[0]][positionCaseVide[1]] = tableau[index1][index2];
+        tableau[index1][index2] = temp;
+        return false;
+    }
+
+
+
+    let coupPossible = coups_possibles(positionCaseVide[0],positionCaseVide[1]);
+    // console.log("coupsPossible = ", coupPossible);
+
     for(let i = 0; i < coupPossible.length; i++){
-         swap(postitionCaseVide[0], postitionCaseVide[1], coupPossible[i][0], coupPossible[i][1]);
-        if(depthSolution(maxdepth, tableau, depth+1)){
+        mytest++;
+         swap(positionCaseVide[0], positionCaseVide[1], coupPossible[i][0], coupPossible[i][1]);
+        if(depthSolution(maxdepth, tableau, depth+1, positionCaseVide[0], positionCaseVide[1])){
             return true;
         }
     }
+    if (index2 !== null){
+        let temp = tableau[positionCaseVide[0]][positionCaseVide[1]];
+        tableau[positionCaseVide[0]][positionCaseVide[1]] = tableau[index1][index2];
+        tableau[index1][index2] = temp;
+    }
     return false;
-
-
 
 
 }
@@ -143,20 +175,26 @@ function depthSolution(maxdepth, tableau, depth) {
 function caseVide(tableau){
     for(let i = 0; i < tableau.length; i++){
         for (let j = 0; j < tableau[i].length; j++){
-            if (tableau[i][j] === 8 ){
+            if (tableau[i][j] === longueurPlateau-1 ){
                 return [i,j];
             }
         }
     }
 }
+
+myTable();
 init();
 document.getElementById("mix").addEventListener("click", mix);
 render(tableau);
 $( "#clickSol" ).click(function() {
-    if(depthSolution(1, tableau,0) === true){
-        console.log('sa marche');
+    if(depthSolution(8, tableau,0) === true){
+      console.log(tableauInitial);
+        console.log('ça marche');
+        console.log(mytest);
     } else{
-        console.log('sa marche pas');
+        console.log(tableauInitial);
+        console.log(mytest);
+        console.log('ça ne marche pas');
     }
 });
-console.log(tableau);
+});
